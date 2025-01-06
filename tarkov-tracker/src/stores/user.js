@@ -22,6 +22,7 @@ export const defaultState = {
   hideGlobalTasks: false,
   hideNonKappaTasks: false,
   neededitemsStyle: null,
+  hiddenTasks: {}, // P9f01
 };
 
 // Getters are for reading store state in a uniform manner
@@ -95,6 +96,9 @@ export const getters = {
   },
   getHideoutPrimaryView: (state) => {
     return state.hideoutPrimaryView ?? "available";
+  },
+  isTaskHidden: (state) => { // P8cec
+    return (taskId) => state.hiddenTasks?.[taskId] || false;
   },
 };
 
@@ -190,6 +194,17 @@ export const actions = {
   },
   setHideoutPrimaryView(view) {
     this.hideoutPrimaryView = view;
+  },
+  hideTask(taskId) { // Pd6e7
+    if (!this.hiddenTasks) {
+      this.hiddenTasks = {};
+    }
+    this.hiddenTasks[taskId] = true;
+  },
+  unhideTask(taskId) { // Pd6e7
+    if (this.hiddenTasks?.[taskId]) {
+      delete this.hiddenTasks[taskId];
+    }
   },
 };
 
