@@ -464,12 +464,16 @@ const updateVisibleTasks = async function () {
       (task) => task.kappaRequired == true
     );
   }
-  // Finally, map the tasks to their IDs
-  //visibleTaskList = visibleTaskList.map((task) => task.id)
 
-  // Sort the tasks by their count of successors
+  // Sort the tasks by their hidden status and then by their count of successors
   visibleTaskList.sort((a, b) => {
-    return b.successors.length - a.successors.length;
+    if (userStore.isTaskHidden(a.id) && !userStore.isTaskHidden(b.id)) {
+      return 1;
+    } else if (!userStore.isTaskHidden(a.id) && userStore.isTaskHidden(b.id)) {
+      return -1;
+    } else {
+      return b.successors.length - a.successors.length;
+    }
   });
 
   reloadingTasks.value = false;

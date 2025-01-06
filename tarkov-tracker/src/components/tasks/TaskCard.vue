@@ -6,6 +6,7 @@
     :class="{
       'task-complete': isComplete && !isFailed,
       'task-locked': isLocked || isFailed,
+      'task-hidden': isHidden,
     }"
   >
     <div v-if="isLocked || isFailed" class="taskContainerBackground text-h1">
@@ -282,7 +283,6 @@
                     @click="markTaskUncomplete()"
                     ><v-icon class="mr-2">mdi-undo</v-icon
                     >{{ $t("page.tasks.questcard.uncompletebutton") }}</v-btn
-                  >
                 </div>
               </template>
             </template>
@@ -329,6 +329,18 @@
                   >
                 </div>
               </template>
+            </template>
+            <template v-else>
+              <div class="d-flex justify-center">
+                <v-btn
+                  size="small"
+                  color="accent"
+                  class="mx-1 my-1"
+                  @click="toggleTaskHidden()"
+                  ><v-icon class="mr-2">{{ isHidden ? 'mdi-eye' : 'mdi-eye-off' }}</v-icon
+                  >{{ isHidden ? $t("page.tasks.questcard.unhidebutton") : $t("page.tasks.questcard.hidebutton") }}</v-btn
+                >
+              </div>
             </template>
           </div>
         </v-col>
@@ -398,6 +410,10 @@ const isOurFaction = computed(() => {
     props.task.factionName == "Any" ||
     props.task.factionName == tarkovStore.getPMCFaction
   );
+});
+
+const isHidden = computed(() => {
+  return userStore.isTaskHidden(props.task.id);
 });
 
 const lockedBehind = computed(() => {
@@ -509,6 +525,18 @@ const markTaskAvailable = () => {
   taskStatusUpdated.value = true;
 };
 
+const toggleTaskHidden = () => {
+  if (isHidden.value) {
+    userStore.unhideTask(props.task.id);
+  } else {
+    userStore.hideTask(props.task.id);
+  }
+  taskStatus.value = isHidden.value
+    ? t("page.tasks.questcard.statusunhidden", { name: props.task.name })
+    : t("page.tasks.questcard.statushidden", { name: props.task.name });
+  taskStatusUpdated.value = true;
+};
+
 const taskStatusUpdated = ref(false);
 const taskStatus = ref("");
 </script>
@@ -544,6 +572,14 @@ const taskStatus = ref("");
     135deg,
     rgba(var(--v-theme-failure), 1) 0%,
     rgba(var(--v-theme-failure), 0) 75%
+  );
+}
+
+.task-hidden {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--v-theme-hidden), 1) 0%,
+    rgba(var(--v-theme-hidden), 0) 75%
   );
 }
 
